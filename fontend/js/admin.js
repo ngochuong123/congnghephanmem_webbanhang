@@ -81,7 +81,7 @@ async function initRevenueChart() {
     if (!canvas) return; // Nếu không tìm thấy thẻ canvas thì thoát
 
     try {
-        const response = await fetch('https://ndtc.onrender.com/admin/revenue-chart');
+        const response = await fetch('https://ndtc.onrender.com/api/admin/revenue-chart');
         const data = await response.json();
 
         const labels = data.map(item => new Date(item.date).toLocaleDateString('vi-VN'));
@@ -185,7 +185,7 @@ async function showSection(sectionId) {
 // 1. Cập nhật hàm load để hiện nút Sửa
 async function loadAdminProducts() {
     try {
-        const res = await fetch('https://ndtc.onrender.com/admin/products');
+        const res = await fetch('https://ndtc.onrender.com/api/admin/products');
         const data = await res.json();
         const list = document.getElementById('adminProductList');
         if (list) {
@@ -269,7 +269,7 @@ async function addNewProduct() {
 
     try {
         // 3. Gửi sang Backend
-        const response = await fetch('https://ndtc.onrender.com/admin/products', {
+        const response = await fetch('https://ndtc.onrender.com/api/admin/products', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(newProduct)
