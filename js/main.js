@@ -63,7 +63,42 @@ logoutLink.addEventListener('click', function (e) {
         window.location.href = 'login.html';
     }
 });
+// --- PHẦN XỬ LÝ TÌM KIẾM SẢN PHẨM ---
 
+const searchInput = document.getElementById('searchInput');
+const searchBtn = document.getElementById('searchBtn');
+
+// Hàm thực hiện lọc sản phẩm
+function handleSearch() {
+    const searchTerm = searchInput.value.toLowerCase().trim(); // Lấy từ khóa, chuyển về chữ thường
+
+    // Lọc mảng products ban đầu
+    const filteredProducts = products.filter(product =>
+        product.name.toLowerCase().includes(searchTerm)
+    );
+
+    // Hiển thị lại danh sách đã lọc
+    displayProducts(filteredProducts);
+
+    // Thông báo nếu không tìm thấy
+    const productGrid = document.getElementById('productGrid');
+    if (filteredProducts.length === 0) {
+        productGrid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; padding: 50px; color: #666;">
+            Không tìm thấy sản phẩm nào khớp với từ khóa "${searchTerm}"
+        </p>`;
+    }
+}
+
+// Sự kiện khi click nút Tìm kiếm
+searchBtn.addEventListener('click', handleSearch);
+
+// Sự kiện khi nhấn phím Enter trong ô input
+searchInput.addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        handleSearch();
+    }
+    searchInput.addEventListener('input', handleSearch);
+});
 // Gọi hàm hiển thị lúc ban đầu
 displayProducts(products);
 
