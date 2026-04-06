@@ -8,7 +8,7 @@ let products = []; // Mảng trống để chứa hàng từ MySQL
 // ==========================================
 async function fetchProducts() {
     try {
-        const response = await fetch('http://localhost:5000/api/products');
+        const response = await fetch('https://ndtc.onrender.com/api/products');
         products = await response.json();
 
         // Sau khi nạp dữ liệu xong mới cho hiển thị

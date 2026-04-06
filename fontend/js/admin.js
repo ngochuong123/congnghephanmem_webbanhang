@@ -45,7 +45,7 @@ function showSection(sectionId) {
 // --- 3. HÀM LẤY ĐƠN HÀNG TỪ API (Bản đã thêm Số thứ tự STT) ---
 async function loadOrders() {
     try {
-        const response = await fetch('http://localhost:5000/api/admin/orders');
+        const response = await fetch('https://ndtc.onrender.com/api/admin/orders');
         const orders = await response.json();
 
         const orderList = document.getElementById('orderList');
@@ -81,7 +81,7 @@ async function initRevenueChart() {
     if (!canvas) return; // Nếu không tìm thấy thẻ canvas thì thoát
 
     try {
-        const response = await fetch('http://localhost:5000/api/admin/revenue-chart');
+        const response = await fetch('https://ndtc.onrender.com/admin/revenue-chart');
         const data = await response.json();
 
         const labels = data.map(item => new Date(item.date).toLocaleDateString('vi-VN'));
@@ -119,7 +119,7 @@ async function initRevenueChart() {
 async function deleteOrder(id) {
     if (!confirm(`Hùng chắc chắn muốn xóa đơn hàng #${id} không?`)) return;
     try {
-        const response = await fetch(`http://localhost:5000/api/admin/orders/${id}`, { method: 'DELETE' });
+        const response = await fetch(`https://ndtc.onrender.com/api/admin/orders/${id}`, { method: 'DELETE' });
         const result = await response.json();
         if (result.success) {
             loadOrders();
@@ -130,7 +130,7 @@ async function deleteOrder(id) {
 
 async function viewDetail(id) {
     try {
-        const response = await fetch(`http://localhost:5000/api/admin/order-detail/${id}`);
+        const response = await fetch(`https://ndtc.onrender.com/api/admin/order-detail/${id}`);
         const details = await response.json();
 
         if (details.length === 0) {
@@ -185,7 +185,7 @@ async function showSection(sectionId) {
 // 1. Cập nhật hàm load để hiện nút Sửa
 async function loadAdminProducts() {
     try {
-        const res = await fetch('http://localhost:5000/api/admin/products');
+        const res = await fetch('https://ndtc.onrender.com/admin/products');
         const data = await res.json();
         const list = document.getElementById('adminProductList');
         if (list) {
@@ -215,7 +215,7 @@ async function editProduct(id, oldPrice, oldStock) {
     // Nếu người dùng không nhấn Cancel và nhập số hợp lệ
     if (newPrice !== null && newStock !== null) {
         try {
-            const response = await fetch(`http://localhost:5000/api/admin/products/${id}`, {
+            const response = await fetch(`https://ndtc.onrender.com/api/admin/products/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -237,7 +237,7 @@ async function editProduct(id, oldPrice, oldStock) {
 
 // Hàm load người dùng
 async function loadAdminUsers() {
-    const res = await fetch('http://localhost:5000/api/admin/users');
+    const res = await fetch('https://ndtc.onrender.com/api/admin/users');
     const data = await res.json();
     const list = document.getElementById('adminUserList');
     if (list) {
@@ -269,7 +269,7 @@ async function addNewProduct() {
 
     try {
         // 3. Gửi sang Backend
-        const response = await fetch('http://localhost:5000/api/admin/products', {
+        const response = await fetch('https://ndtc.onrender.com/admin/products', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(newProduct)

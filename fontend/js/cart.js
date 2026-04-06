@@ -80,7 +80,7 @@ async function startAutoCheckPayment(orderData, isSingleItem = false, itemIndex 
         statusText.innerText = "Đã nhận tín hiệu! Đang lưu vào Database...";
 
         try {
-            const response = await fetch('http://localhost:5000/api/checkout', {
+            const response = await fetch('https://ndtc.onrender.com/api/checkout', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(orderData)
@@ -262,7 +262,7 @@ function generateTotalQR(e) {
 // Gửi dữ liệu đồng bộ Backend
 async function sendDataToBackend(orderData) {
     try {
-        const response = await fetch('http://localhost:5000/api/checkout', {
+        const response = await fetch('https://ndtc.onrender.com/api/checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(orderData)

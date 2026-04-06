@@ -7,7 +7,7 @@ document.getElementById('loginForm').addEventListener('submit', async function (
 
     // 2. GỬI YÊU CẦU ĐĂNG NHẬP SANG BACKEND
     try {
-        const response = await fetch('http://localhost:5000/api/login', {
+        const response = await fetch('https://ndtc.onrender.com/api/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: email, password: password })
@@ -38,6 +38,6 @@ document.getElementById('loginForm').addEventListener('submit', async function (
         }
     } catch (error) {
         console.error("Lỗi kết nối:", error);
-        alert("Server đang bận hoặc chưa bật rồi Hùng ơi! +))");
+        alert("Server đang bận hoặc chưa bật rồi! +))");
     }
 });
