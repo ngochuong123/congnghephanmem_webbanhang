@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>GameStore - Trang chủ</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <header>
+        <header>
+            <nav class="navbar">
+                <div class="nav-left">
+                    <div class="logo">Game<span>Store</span></div>
+                </div>
+                <div class="nav-right">
+                    <span id="userGreeting" style="color: #ff4757; font-weight: bold;"></span>
+
+                    <a href="login.html" id="loginLink">Đăng nhập</a>
+
+                    <a href="#" id="logoutLink" style="display: none; color: #ccc; font-size: 14px;">
+                        <i class="fa fa-sign-out-alt"></i> Đăng xuất
+                    </a>
+
+                    <div class="cart-icon">
+                        <i class="fa fa-shopping-cart"></i>
+                        <span id="cartCount">0</span>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <section class="search-section">
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="Tìm kiếm sản phẩm game...">
+                    <button id="searchBtn"><i class="fa fa-search"></i> Tìm kiếm</button>
+                </div>
+            </section>
+
+            <section class="products-container">
+                <div class="product-grid" id="productGrid">
+                </div>
+            </section>
+        </main>
+
+        <script src="js/main.js"></script>
+</body>
+
+</html>
