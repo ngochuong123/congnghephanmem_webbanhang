@@ -5,7 +5,11 @@ const mysql = require('mysql2');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+app.use(cors({
+    origin: '*', // Cho phép tất cả các nguồn truy cập (để đi thi cho chắc cú)
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 // 1. CẤU HÌNH KẾT NỐI DATABASE
