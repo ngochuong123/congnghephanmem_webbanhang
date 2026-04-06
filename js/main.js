@@ -1,26 +1,54 @@
 // 1. Khởi tạo danh sách sản phẩm mẫu
 const products = [
-    { id: 1, name: "Cuồng đao ánh sáng", price: 15000000, img: "images/cuongdaoanhsang.png", status: "Còn hàng" },
-    { id: 2, name: "Móc diệt thủy quái", price: 28000000, img: "images/mocdietthuyquai.jpg", status: "Còn hàng" },
-    { id: 3, name: "Vô cực ánh sáng", price: 800000, img: "images/vocucanhsang.png", status: "Còn hàng" },
-    { id: 4, name: "Chùy xuyên phá", price: 1200000, img: "images/chuyxuyenpha.jpg", status: "Còn hàng" },
+    {
+        id: 1,
+        name: "Cuồng đao ánh sáng",
+        price: 15000000,
+        img: "images/cuongdaoanhsang.png",
+        status: "Còn hàng",
+        desc: "Vũ khí huyền thoại tăng 50% tốc độ đánh. Mỗi đòn đánh thứ 3 sẽ gây thêm sát thương phép và hồi phục năng lượng cho chủ sở hữu."
+    },
+    {
+        id: 2,
+        name: "Móc diệt thủy quái",
+        price: 28000000,
+        img: "images/mocdietthuyquai.jpg",
+        status: "Còn hàng",
+        desc: "Trang bị tối thượng để đối đầu với các tanker. Gây sát thương chuẩn dựa trên phần trăm máu tối đa của đối phương."
+    },
+    {
+        id: 3,
+        name: "Vô cực ánh sáng",
+        price: 800000,
+        img: "images/vocucanhsang.png",
+        status: "Còn hàng",
+        desc: "Tăng mạnh tỉ lệ chí mạng và sát thương chí mạng. Khiến mỗi phát bắn của bạn trở thành nỗi khiếp sợ trên chiến trường."
+    },
+    {
+        id: 4,
+        name: "Chùy xuyên phá",
+        price: 1200000,
+        img: "images/chuyxuyenpha.jpg",
+        status: "Còn hàng",
+        desc: "Vũ khí công thành hạng nặng. Tăng sát thương lên công trình và giúp bạn càn quét lính cực nhanh trong giai đoạn đẩy đường."
+    }
 ];
 
 // 2. Hàm hiển thị sản phẩm
 function displayProducts(data) {
     const productGrid = document.getElementById('productGrid');
-    productGrid.innerHTML = ''; // Xóa nội dung cũ
+    productGrid.innerHTML = '';
 
     data.forEach(item => {
         const isOutOfStock = item.status === "Hết hàng";
         productGrid.innerHTML += `
             <div class="product-card">
-                <div class="product-img">
+                <div class="product-img" onclick="showProductDetail(${item.id})" style="cursor: pointer;">
                     <img src="${item.img}" alt="${item.name}">
                     ${isOutOfStock ? '<span class="badge-out">Hết hàng</span>' : ''}
                 </div>
                 <div class="product-info">
-                    <h4>${item.name}</h4>
+                    <h4 onclick="showProductDetail(${item.id})" style="cursor: pointer;">${item.name}</h4>
                     <p class="price">${item.price.toLocaleString()} VNĐ</p>
                     <button class="btn-add" ${isOutOfStock ? 'disabled' : ''}>
                         ${isOutOfStock ? 'Tạm hết hàng' : 'Thêm vào giỏ'}
@@ -29,6 +57,46 @@ function displayProducts(data) {
             </div>
         `;
     });
+}
+
+const modal = document.getElementById('productModal');
+const closeModal = document.querySelector('.close-modal');
+
+// Hàm hiển thị chi tiết
+function showProductDetail(id) {
+    // 1. Tìm sản phẩm trong mảng dựa trên ID
+    const product = products.find(p => p.id === id);
+
+    if (!product) return;
+
+    // 2. Đổ dữ liệu vào Modal
+    // LƯU Ý: Phải là .img (khớp với item.img trong hàm display của bạn)
+    document.getElementById('modalImg').src = product.img;
+    document.getElementById('modalName').innerText = product.name;
+    document.getElementById('modalPrice').innerText = product.price.toLocaleString() + " VNĐ";
+
+    // Thêm mô tả mặc định (hoặc lấy từ dữ liệu nếu có)
+    const descText = product.desc || `Siêu phẩm ${product.name} đang cực hot tại GameStore. Giá sinh viên UET!`;
+    document.getElementById('modalDesc').innerText = descText;
+
+    // 3. Hiển thị Modal
+    const modal = document.getElementById('productModal');
+    modal.style.display = "block";
+    document.body.style.overflow = "hidden"; // Chặn cuộn trang chủ
+}
+
+// Đóng modal khi bấm nút X
+closeModal.onclick = function () {
+    modal.style.display = "none";
+    document.body.style.overflow = "auto";
+}
+
+// Đóng modal khi bấm ra ngoài vùng trắng
+window.onclick = function (event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+        document.body.style.overflow = "auto";
+    }
 }
 
 // --- PHẦN XỬ LÝ ĐĂNG NHẬP / ĐĂNG XUẤT ---

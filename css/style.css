@@ -319,3 +319,167 @@ LÀM ĐẸP RIÊNG CHO TRANG ĐĂNG NHẬP / ĐĂNG KÝ=========================
     user-select: none;
     pointer-events: none;
 }
+
+/* Nền đen mờ phủ toàn màn hình */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    /* Làm mờ nền */
+    backdrop-filter: blur(5px);
+    /* Hiệu ứng kính mờ */
+}
+
+/* Khung nội dung chính */
+.modal-content {
+    background-color: #fff;
+    margin: 5% auto;
+    width: 80%;
+    max-width: 900px;
+    border-radius: 20px;
+    position: relative;
+    animation: slideUp 0.4s ease-out;
+    /* Hiệu ứng trượt lên kiểu TikTok */
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.close-modal {
+    position: absolute;
+    right: 20px;
+    top: 10px;
+    font-size: 30px;
+    cursor: pointer;
+    color: #333;
+}
+
+.modal-body {
+    display: flex;
+    padding: 30px;
+    gap: 30px;
+}
+
+.modal-left {
+    flex: 1;
+}
+
+.modal-left img {
+    width: 100%;
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.modal-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.modal-right h2 {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.modal-price {
+    font-size: 24px;
+    color: #ff4757;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.modal-description h4 {
+    margin-bottom: 10px;
+    color: #666;
+}
+
+.btn-add-large {
+    background: #ff4757;
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: 0.3s;
+}
+
+.btn-add-large:hover {
+    background: #e84118;
+    transform: scale(1.02);
+}
+
+/* Chặn con trỏ văn bản trong toàn bộ Modal, ngoại trừ nút bấm */
+.modal-content {
+    cursor: default;
+    /* Ép con trỏ luôn là mũi tên */
+    user-select: none;
+    /* Không cho phép bôi đen chữ */
+}
+
+/* Chỉ định cụ thể cho từng phần tử tiêu đề và mô tả */
+#modalName,
+#modalPrice,
+#modalDesc,
+.modal-description h4 {
+    cursor: default;
+    /* Đảm bảo không hiện chữ I khi chỉ vào */
+    user-select: none;
+    /* Ngăn bôi đen */
+}
+
+/* Đảm bảo nút "Thêm vào giỏ" và nút đóng (X) vẫn hiện bàn tay */
+.btn-add-large,
+.close-modal {
+    cursor: pointer !important;
+}
+
+/* Nếu bạn muốn khi di chuột vào tên nó đổi màu nhẹ cho đẹp (giống TikTok) */
+.product-info h4:hover {
+    color: #ff4757;
+    cursor: pointer;
+    /* Giữ lại bàn tay nếu bạn muốn người dùng biết là bấm vào để xem chi tiết được */
+}
+
+/* Nút đóng (X) mặc định */
+.close-modal {
+    position: absolute;
+    right: 25px;
+    top: 15px;
+    font-size: 35px;
+    font-weight: bold;
+    color: #999;
+    /* Màu xám nhạt lúc bình thường */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    /* Tạo hiệu ứng mượt mà */
+    user-select: none;
+    /* Chặn bôi đen dấu X */
+    line-height: 1;
+}
+
+/* Hiệu ứng khi di chuột vào (Hover) */
+.close-modal:hover {
+    color: #ff4757;
+    /* Đổi sang màu đỏ thương hiệu GameStore */
+    transform: scale(1.2) rotate(90deg);
+    /* Phóng to 20% và xoay nhẹ cho ngầu */
+    text-shadow: 0 0 10px rgba(255, 71, 87, 0.3);
+    /* Thêm chút ánh sáng đỏ xung quanh */
+}
