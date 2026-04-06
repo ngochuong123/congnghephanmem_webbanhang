@@ -1,20 +1,18 @@
-// 1. Khai báo mảng cart ở phạm vi toàn cục để mọi hàm đều thấy
 let cart = JSON.parse(localStorage.getItem('gameCart')) || [];
 
+// 1. Hiển thị giỏ hàng và tự động cập nhật QR
 function displayCart() {
     const cartList = document.getElementById('cartList');
     const itemCount = document.getElementById('itemCount');
-
     if (!cartList) return;
 
     if (cart.length === 0) {
-        cartList.innerHTML = `<p style="text-align:center; padding: 50px;">Giỏ hàng của bạn đang trống.</p>`;
+        cartList.innerHTML = `<p style="text-align:center; padding: 50px;">Giỏ hàng trống.</p>`;
         if (itemCount) itemCount.innerText = "0";
         updateSummary(0, 0);
         return;
     }
 
-    // Đảo ngược mảng để hiện món mới nhất lên đầu (Stack)
     const displayData = [...cart].reverse();
     let html = '';
     let totalMoney = 0;
@@ -23,8 +21,6 @@ function displayCart() {
     displayData.forEach((item, index) => {
         const originalIndex = cart.length - 1 - index;
         const subTotal = item.price * item.quantity;
-
-        // Tự động cộng dồn tiền và số lượng
         totalMoney += subTotal;
         totalCount += item.quantity;
 
@@ -47,75 +43,123 @@ function displayCart() {
                         <button class="btn-remove-item" onclick="removeItem(${originalIndex})">Xóa</button>
                     </div>
                 </div>
-            </div>
-        `;
+            </div>`;
     });
 
     cartList.innerHTML = html;
-
-    // Luôn cập nhật con số ở tiêu đề và bảng tổng kết tự động
     if (itemCount) itemCount.innerText = totalCount;
     updateSummary(totalCount, totalMoney);
 }
 
-// Hàm thay đổi số lượng (Tự động lưu và vẽ lại trang)
+// 2. Kiểm tra thông tin (Validate) - PHẢI CHUẨN ĐỂ HIỆN THÔNG BÁO
+function validateShippingInfo() {
+    const name = document.getElementById('customerName').value.trim();
+    const phone = document.getElementById('customerPhone').value.trim();
+    const address = document.getElementById('customerAddress').value.trim();
+
+    if (!name || !phone || !address) {
+        alert("Bạn ơi! Phải điền đủ Tên, SĐT và Địa chỉ mới mua hàng được nhé! +))");
+        return null;
+    }
+
+    const phoneRegex = /^[0-9]{10,11}$/;
+    if (!phoneRegex.test(phone)) {
+        alert("Số điện thoại phải từ 10-11 chữ số nhé!");
+        document.getElementById('customerPhone').focus();
+        return null;
+    }
+
+    return { name, phone, address };
+}
+
+// 3. Xử lý THANH TOÁN TẤT CẢ
+function checkoutAll() {
+    const info = validateShippingInfo();
+    if (!info) return;
+
+    const method = document.querySelector('input[name="payMethod"]:checked').value;
+    const total = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+
+    if (method === 'cod') {
+        if (confirm(`Xác nhận đặt hàng COD cho đơn ${total.toLocaleString()} VNĐ?`)) {
+            finishOrder("Đặt hàng thành công! Shipper sẽ sớm gọi cho Hùng.");
+        }
+    } else {
+        showLoading(() => {
+            finishOrder("Ngân hàng báo tiền đã về! Thanh toán trọn bộ thành công.");
+        });
+    }
+}
+
+// 4. Xử lý THANH TOÁN LẺ TỪNG MÓN
+function paySingleItem(index) {
+    const info = validateShippingInfo();
+    if (!info) return;
+
+    const item = cart[index];
+    const subTotal = item.price * item.quantity;
+    const method = document.querySelector('input[name="payMethod"]:checked').value;
+
+    if (method === 'cod') {
+        if (confirm(`Mua riêng món [${item.name}] - Thanh toán khi nhận hàng?`)) {
+            cart.splice(index, 1);
+            saveAndRefresh();
+            alert("Đặt hàng lẻ thành công!");
+        }
+    } else {
+        // Chuyển khoản: Hiện loading
+        showLoading(() => {
+            alert(`Đã nhận ${subTotal.toLocaleString()} VNĐ cho món ${item.name}!`);
+            cart.splice(index, 1);
+            saveAndRefresh();
+        });
+    }
+}
+
+// 5. Các hàm bổ trợ (Loading, Refresh, Update QR)
+function showLoading(callback) {
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.style.display = 'flex';
+    setTimeout(() => {
+        overlay.style.display = 'none';
+        callback();
+    }, 3000); // Đợi 3 giây
+}
+
+function updateSummary(qty, price) {
+    if (document.getElementById('totalQty')) document.getElementById('totalQty').innerText = qty;
+    if (document.getElementById('totalPriceFinal')) document.getElementById('totalPriceFinal').innerText = price.toLocaleString() + " VNĐ";
+    if (document.getElementById('subtotal')) document.getElementById('subtotal').innerText = price.toLocaleString() + " VNĐ";
+
+    const qrImg = document.querySelector('.qr-code img');
+    if (qrImg) {
+        qrImg.src = `https://img.vietqr.io/image/MB-0967444300-compact2.png?amount=${price}&addInfo=GameStore%20Thanh%20Toan`;
+    }
+}
+
+function finishOrder(msg) {
+    alert(msg);
+    localStorage.removeItem('gameCart');
+    window.location.href = 'index.html';
+}
+
 function changeQty(index, delta) {
     cart[index].quantity += delta;
     if (cart[index].quantity < 1) {
-        if (confirm("Xóa sản phẩm này khỏi giỏ hàng?")) {
-            cart.splice(index, 1);
-        } else {
-            cart[index].quantity = 1;
-        }
+        if (confirm("Xóa sản phẩm?")) cart.splice(index, 1);
+        else cart[index].quantity = 1;
     }
     saveAndRefresh();
 }
 
-// Hàm xóa sản phẩm
-function removeItem(index) {
-    if (confirm("Bạn chắc chắn muốn xóa?")) {
-        cart.splice(index, 1);
-        saveAndRefresh();
-    }
-}
-
-// Hàm cập nhật các con số ở bảng bên phải (Summary)
-function updateSummary(qty, price) {
-    const totalQty = document.getElementById('totalQty');
-    const subtotal = document.getElementById('subtotal');
-    const totalPriceFinal = document.getElementById('totalPriceFinal');
-
-    if (totalQty) totalQty.innerText = qty;
-    if (subtotal) subtotal.innerText = price.toLocaleString() + " VNĐ";
-    if (totalPriceFinal) totalPriceFinal.innerText = price.toLocaleString() + " VNĐ";
-}
-
-// Hàm lưu vào kho và vẽ lại giao diện
 function saveAndRefresh() {
     localStorage.setItem('gameCart', JSON.stringify(cart));
     displayCart();
 }
 
-// --- ĐÂY LÀ HÀM CHO NÚT TO Ở DƯỚI ---
-function checkoutAll() {
-    if (cart.length === 0) {
-        alert("Giỏ hàng trống!");
-        return;
-    }
-
-    let total = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
-    if (confirm(`Xác nhận thanh toán đơn hàng: ${total.toLocaleString()} VNĐ?`)) {
-        alert("Thanh toán thành công! Cảm ơn Hùng đã ủng hộ GameStore.");
-        localStorage.removeItem('gameCart');
-        window.location.href = 'index.html';
-    }
+function togglePaymentInfo() {
+    const method = document.querySelector('input[name="payMethod"]:checked').value;
+    document.getElementById('transferDetail').style.display = (method === 'transfer') ? 'block' : 'none';
 }
 
-function paySingleItem(index) {
-    alert(`Đã thanh toán món: ${cart[index].name}`);
-    cart.splice(index, 1);
-    saveAndRefresh();
-}
-
-// Khởi động trang
 document.addEventListener('DOMContentLoaded', displayCart);

@@ -46,21 +46,70 @@
                         <span>Tổng sản phẩm:</span>
                         <span id="totalQty">0</span>
                     </div>
-                    <!-- <div class="summary-line total">
-                        <span>Tổng cộng:</span>
-                        <span id="totalPriceFinal">0 VNĐ</span>
+                    <div class="shipping-info">
+                        <h4>Thông tin giao hàng</h4>
+                        <div class="input-group-cart">
+                            <label>Họ và tên *</label>
+                            <input type="text" id="customerName" placeholder="Nhập tên người nhận">
+                        </div>
+                        <div class="input-group-cart">
+                            <label>Số điện thoại *</label>
+                            <input type="tel" id="customerPhone" placeholder="Số điện thoại (10-11 số)"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '');" maxlength="11">
+                        </div>
+                        <div class="input-group-cart">
+                            <label>Địa chỉ nhận game *</label>
+                            <textarea id="customerAddress" rows="3" placeholder="Số nhà, tên đường, quận/huyện..."
+                                oninput="updateMap()"></textarea>
+
+                            <div id="mapContainer"
+                                style="margin-top: 10px; display: none; border-radius: 12px; overflow: hidden; border: 1px solid #ddd;">
+                                <iframe id="mapIframe" width="100%" height="200" frameborder="0" scrolling="no"
+                                    marginheight="0" marginwidth="0" src="">
+                                </iframe>
+                            </div>
+                        </div>
+                        <div class="payment-methods">
+                            <h4>Phương thức thanh toán</h4>
+
+                            <label class="payment-option">
+                                <input type="radio" name="payMethod" value="cod" checked onclick="togglePaymentInfo()">
+                                <div class="method-info">
+                                    <i class="fa-solid fa-truck-fast"></i>
+                                    <span>Tiền mặt (COD) - Nhận hàng rồi mới thanh toán</span>
+                                </div>
+                            </label>
+
+                            <label class="payment-option">
+                                <input type="radio" name="payMethod" value="transfer" onclick="togglePaymentInfo()">
+                                <div class="method-info">
+                                    <i class="fa-solid fa-building-columns"></i>
+                                    <span>Chuyển khoản ngân hàng (QR Code)</span>
+                                </div>
+                            </label>
+
+                            <div id="transferDetail" class="transfer-box" style="display: none;">
+                                <p><b>Ngân hàng:</b> MB Bank (Quân Đội)</p>
+                                <p><b>Số tài khoản:</b> 0967444300</p>
+                                <p><b>Chủ TK:</b> Nguyễn Ngọc Hưởng</p>
+                                <div class="qr-code">
+                                    <img src="https://img.vietqr.io/image/MB-0967444300-compact2.png"
+                                        alt="Mã QR Thanh Toán">
+                                    <p><small>(Quét mã để thanh toán nhanh)</small></p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <button class="btn-calc" onclick="calculateTotal()">TÍNH TỔNG TIỀN</button>
-                    <p style="font-size: 0.8rem; color: #666; margin-top: 10px;">* Hoặc thanh toán riêng từng món bên
-                        dưới</p>
-                </div> -->
                     <button class="btn-checkout-v2" onclick="checkoutAll()" style="cursor: pointer;">
                         TIẾN HÀNH THANH TOÁN <i class="fa-solid fa-arrow-right"></i>
                     </button>
                 </div>
         </aside>
     </main>
-
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="spinner"></div>
+        <p>Đang kiểm tra giao dịch, vui lòng chờ giây lát...</p>
+    </div>
     <script src="js/cart.js"></script>
 </body>
 
