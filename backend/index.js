@@ -118,6 +118,24 @@ app.get('/api/products', (req, res) => {
         res.json(results); // Trả về mảng sản phẩm cho Frontend
     });
 });
+let paymentStatus = {}; // Biến tạm lưu trạng thái thanh toán
+
+app.get('/api/check-payment', (req, res) => {
+    const name = req.query.name;
+    if (paymentStatus[name]) {
+        res.json({ paid: true });
+        delete paymentStatus[name]; // Xóa sau khi dùng xong
+    } else {
+        res.json({ paid: false });
+    }
+});
+
+// Hùng dùng Postman gọi vào đây để giả lập tiền về:
+app.post('/api/fake-ting-ting', (req, res) => {
+    const { name } = req.body;
+    paymentStatus[name] = true;
+    res.send("Đã giả lập nhận tiền thành công!");
+});
 
 app.listen(PORT, () => {
     console.log(`\n=========================================`);

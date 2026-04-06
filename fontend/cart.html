@@ -100,7 +100,13 @@
                             </div>
                         </div>
                     </div>
-                    <button class="btn-checkout-v2" onclick="checkoutAll()" style="cursor: pointer;">
+
+                    <button type="button" id="btnGenTotalQR" onclick="generateTotalQR(event)"
+                        style="margin-bottom: 12px; width: 100%; padding: 12px; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <i class="fa-solid fa-qrcode"></i> HIỆN MÃ QR TỔNG TIỀN
+                    </button>
+
+                    <button class="btn-checkout-v2" onclick="checkoutAll(event)" style="cursor: pointer; width: 100%;">
                         TIẾN HÀNH THANH TOÁN <i class="fa-solid fa-arrow-right"></i>
                     </button>
                 </div>

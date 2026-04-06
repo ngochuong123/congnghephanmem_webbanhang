@@ -779,6 +779,26 @@ LÀM ĐẸP RIÊNG CHO TRANG ĐĂNG NHẬP / ĐĂNG KÝ=========================
     box-shadow: 0 0 8px rgba(255, 71, 87, 0.1);
 }
 
+.btn-qr-small {
+    background: #5a6268;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-right: 5px;
+}
+
+.btn-qr-small:hover {
+    background: #343a40;
+    transform: scale(1.1);
+}
+
+.btn-qr-small i {
+    font-size: 1.1rem;
+}
+
 /* Đảm bảo con trỏ I hiện ra ở đây để gõ được (như yêu cầu trước của bạn) */
 .input-group-cart input,
 .input-group-cart textarea {
