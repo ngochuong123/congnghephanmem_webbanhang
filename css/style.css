@@ -1,115 +1,321 @@
-/* Reset CSS cơ bản */
+/* =========================================
+   1. RESET & CHUNG (Dùng cho tất cả các trang)
+   ========================================= */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', Arial, sans-serif;
 }
 
 body {
-    background-color: #f9f4f8;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+    background-color: #f5f5f5;
     color: #333;
+    line-height: 1.6;
+    /* Xóa height: 100vh và display: flex ở đây để trang chủ cuộn được */
 }
 
-.container {
-    width: 100%;
-    max-width: 400px;
-    padding: 20px;
+/* =========================================
+   2. HEADER & NAVBAR (Cố định ở trên cùng)
+   ========================================= */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 5%;
+    background-color: #1a1a1a;
+    /* Màu tối chuẩn GameStore */
+    color: white;
+    height: 70px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    cursor: default;
+    user-select: none;
 }
 
-.register-card {
-    background: #fff;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-    text-align: center;
-}
-
-.logo h2 {
-    font-size: 28px;
-    margin-bottom: 20px;
-    color: #2d3436;
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
 }
 
 .logo span {
-    color: #0984e3;
-    /* Màu xanh đặc trưng công nghệ */
+    color: #ff4757;
+    /* Màu đỏ nhấn mạnh */
+    cursor: default;
 }
 
-h3 {
-    margin-bottom: 8px;
-    font-size: 22px;
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
 }
 
-.subtitle {
-    color: #636e72;
-    font-size: 14px;
-    margin-bottom: 30px;
+.nav-right a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
 }
 
-/* Định dạng các ô nhập liệu */
-.input-group {
-    text-align: left;
-    margin-bottom: 20px;
+.cart-icon {
+    position: relative;
+    font-size: 20px;
+    cursor: pointer;
 }
 
-.input-group label {
-    display: block;
-    font-size: 14px;
+#cartCount {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: #ff4757;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 50%;
+}
+
+/* =========================================
+   3. THANH TÌM KIẾM (Nằm riêng ở trên sản phẩm)
+   ========================================= */
+.search-section {
+    display: flex;
+    justify-content: center;
+    padding: 40px 5% 20px 5%;
+    background-color: #fff;
+}
+
+.search-container {
+    display: flex;
+    width: 100%;
+    max-width: 700px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 30px;
+    overflow: hidden;
+    border: 1px solid #ddd;
+}
+
+.search-container input {
+    flex: 1;
+    padding: 15px 25px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+}
+
+.search-container button {
+    padding: 0 30px;
+    background: #ff4757;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.search-container button:hover {
+    background: #e84118;
+}
+
+/* =========================================
+   4. DANH SÁCH SẢN PHẨM (Dàn hàng ngang)
+   ========================================= */
+.products-container {
+    padding: 20px 5% 50px 5%;
+}
+
+.products-container h2 {
+    margin-bottom: 25px;
+    text-align: center;
+    font-size: 28px;
+}
+
+.product-grid {
+    display: grid;
+    /* Tự động chia cột: mỗi cái rộng ~250px, xếp từ trái sang phải */
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 25px;
+}
+
+.product-card {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: 0.3s;
+}
+
+.product-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.product-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.product-card h4 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.product-card p {
+    color: #ff4757;
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.btn-add {
+    width: 100%;
+    padding: 12px;
+    background: #1a1a1a;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
     font-weight: 600;
-    margin-bottom: 8px;
+    transition: 0.3s;
+}
+
+.btn-add:hover {
+    background: #ff4757;
+}
+
+/* =========================================
+LÀM ĐẸP RIÊNG CHO TRANG ĐĂNG NHẬP / ĐĂNG KÝ=========================================*/
+
+/* Nền có màu Gradient sang trọng */
+.auth-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135.deg, #1a1a1a 0%, #2d3436 100%);
+    /* Nền tối chuẩn Game */
+    margin: 0;
+}
+
+/* Khung Card trắng nổi bật */
+.auth-card {
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 20px;
+    /* Bo góc tròn hơn */
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+    transition: transform 0.3s ease;
+    cursor: default;
+    user-select: none;
+}
+
+.auth-card input {
+    cursor: text;
+    user-select: auto;
+}
+
+.auth-card button {
+    cursor: pointer;
+    /* Hiện hình bàn tay khi di vào nút bấm */
+}
+
+.auth-card .footer-link a {
+    cursor: pointer;
+}
+
+.auth-card:hover {
+    transform: scale(1.01);
+    /* Hiệu ứng phóng nhẹ khi di chuột */
+}
+
+/* Tiêu đề */
+.auth-card h3 {
+    font-size: 24px;
+    color: #2d3436;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Ô nhập liệu tinh tế hơn */
+.input-group label {
+    color: #636e72;
+    font-size: 13px;
+    margin-bottom: 6px;
+    text-transform: uppercase;
 }
 
 .input-group input {
     width: 100%;
-    padding: 12px 15px;
-    border: 1.5px solid #dfe6e9;
-    border-radius: 8px;
-    outline: none;
-    transition: 0.3s;
+    padding: 14px;
+    border: 2px solid #eee;
+    /* Viền nhạt */
+    border-radius: 10px;
+    font-size: 15px;
+    transition: all 0.3s;
 }
 
-.input-group input:focus {
-    border-color: #0984e3;
-    box-shadow: 0 0 0 3px rgba(9, 132, 227, 0.1);
+/* Định dạng nhãn (Label) cho các ô nhập liệu */
+.input-group label {
+    display: block;
+    text-align: left;
+    margin-bottom: 5px;
+    margin-left: 2px;
+    font-weight: 700;
+    color: #2d3436;
+    font-size: 14px;
+    text-transform: none;
 }
 
-/* Nút bấm */
+/* Nút bấm Đăng ký/Đăng nhập kiểu Gaming */
 .btn-register {
     width: 100%;
-    padding: 14px;
-    background-color: #0984e3;
+    padding: 15px;
+    background: #ff4757;
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 16px;
-    font-weight: 600;
+    font-weight: bold;
     cursor: pointer;
+    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
     transition: 0.3s;
     margin-top: 10px;
 }
 
 .btn-register:hover {
-    background-color: #074b83;
+    background: #ff6b81;
     transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4);
 }
 
+/* Link chuyển đổi trang */
 .footer-link {
-    margin-top: 25px;
-    font-size: 14px;
-    color: #636e72;
+    margin-top: 20px;
+    color: #b2bec3;
 }
 
 .footer-link a {
-    color: #0984e3;
+    color: #ff4757;
     text-decoration: none;
-    font-weight: 600;
+    font-weight: bold;
 }
 
 .footer-link a:hover {
     text-decoration: underline;
+}
+
+/* Áp dụng cho các tiêu đề và nhãn (label) */
+.auth-card h3,
+.input-group label,
+.logo h2 {
+    cursor: default;
+    user-select: none;
+    pointer-events: none;
 }

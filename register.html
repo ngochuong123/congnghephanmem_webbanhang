@@ -9,44 +9,41 @@
 </head>
 
 <body>
-    <div class="container">
-        <div class="register-card">
+    <div class="auth-page">
+        <div class="auth-card">
             <div class="logo">
                 <h2>Game<span>Store</span></h2>
             </div>
-            <h3>Tạo tài khoản mới</h3>
-            <p class="subtitle">Vui lòng điền thông tin để bắt đầu mua sắm</p>
+            <h3>Đăng ký</h3>
+            <p class="subtitle">Tạo tài khoản để trải nghiệm GameStore</p>
 
             <form id="registerForm">
                 <div class="input-group">
-                    <label for="fullname">Họ và tên</label>
-                    <input type="text" id="fullname" placeholder="Nguyễn Văn A" required>
+                    <label>Họ và tên</label>
+                    <input type="text" id="fullname" placeholder="Nhập tên của bạn" required>
                 </div>
-
                 <div class="input-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" placeholder="name@example.com" required>
+                    <label>Email</label>
+                    <input type="email" id="email" placeholder="example@gmail.com" required>
                 </div>
-
                 <div class="input-group">
-                    <label for="password">Mật khẩu</label>
-                    <input type="password" id="password" placeholder="Tối thiểu 6 ký tự" required minlength="6">
+                    <label>Mật khẩu</label>
+                    <input type="password" id="password" placeholder="Nhập mật khẩu" required minlength="6">
                 </div>
-
                 <div class="input-group">
-                    <label for="confirmPassword">Xác nhận mật khẩu</label>
+                    <label>Xác nhận mật khẩu</label>
                     <input type="password" id="confirmPassword" placeholder="Nhập lại mật khẩu" required>
                 </div>
-
                 <button type="submit" class="btn-register">Đăng ký ngay</button>
             </form>
 
             <div class="footer-link">
-                Bạn đã có tài khoản? <a href="login.html">Đăng nhập</a>
+                Đã có tài khoản? <a href="login.html">Đăng nhập ngay</a>
             </div>
         </div>
     </div>
-    <script src="register.js"></script>
+
+    <script src="js/register.js"></script>
 </body>
 
 </html>
