@@ -1,6 +1,6 @@
 let cart = JSON.parse(localStorage.getItem('gameCart')) || [];
 
-// 1. Hiển thị giỏ hàng (Giữ nguyên logic của Hùng)
+// 1. Hiển thị giỏ hàng
 function displayCart() {
     const cartList = document.getElementById('cartList');
     const itemCount = document.getElementById('itemCount');
@@ -24,7 +24,6 @@ function displayCart() {
         totalMoney += subTotal;
         totalCount += item.quantity;
 
-        // Tìm đoạn html += ` ... ` trong hàm displayCart và chèn thêm nút QR
         html += `
         <div class="cart-item">
         <img src="${item.img}" alt="${item.name}">
@@ -55,20 +54,20 @@ function displayCart() {
     updateSummary(totalCount, totalMoney);
 }
 
-// 2. Kiểm tra thông tin
+// 2. Kiểm tra thông tin giao hàng
 function validateShippingInfo() {
     const name = document.getElementById('customerName').value.trim();
     const phone = document.getElementById('customerPhone').value.trim();
     const address = document.getElementById('customerAddress').value.trim();
 
     if (!name || !phone || !address) {
-        alert("Hùng ơi! Điền đủ Tên, SĐT và Địa chỉ đã nhé! +))");
+        alert("Bạn ơi! Điền đủ Tên, SĐT và Địa chỉ đã nhé! +))");
         return null;
     }
     return { name, phone, address };
 }
 
-// --- GỬI DỮ LIỆU CHUNG (Backend) ---
+// 3. Bộ dò tiền tự động (Dùng cho Chuyển khoản)
 async function startAutoCheckPayment(orderData, isSingleItem = false, itemIndex = -1) {
     const overlay = document.getElementById('loadingOverlay');
     if (!overlay) return;
@@ -77,7 +76,6 @@ async function startAutoCheckPayment(orderData, isSingleItem = false, itemIndex 
     const statusText = overlay.querySelector('p');
     statusText.innerText = "Hệ thống đang kết nối ngân hàng... ";
 
-    // Đợi 2 giây "nghệ thuật"
     setTimeout(async () => {
         statusText.innerText = "Đã nhận tín hiệu! Đang lưu vào Database...";
 
@@ -88,18 +86,14 @@ async function startAutoCheckPayment(orderData, isSingleItem = false, itemIndex 
                 body: JSON.stringify(orderData)
             });
 
-            // Nếu Server trả về lỗi (404, 500...)
-            if (!response.ok) {
-                throw new Error(`Server báo lỗi: ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`Server báo lỗi: ${response.status}`);
 
             const res = await response.json();
 
             if (res && res.success) {
-                // Thành công rực rỡ
                 overlay.style.display = 'none';
                 if (isSingleItem) {
-                    alert(`Mua lẻ [${orderData.items[0].name}] thành công!`);
+                    alert(`Mua lẻ [${orderData.cartItems[0].name}] thành công!`);
                     cart.splice(itemIndex, 1);
                     saveAndRefresh();
                 } else {
@@ -107,19 +101,18 @@ async function startAutoCheckPayment(orderData, isSingleItem = false, itemIndex 
                 }
             } else {
                 overlay.style.display = 'none';
-                alert("Backend trả về success: false. Hùng kiểm tra lại file index.js nhé!");
+                alert("Lỗi lưu đơn hàng!");
             }
-
         } catch (error) {
             overlay.style.display = 'none';
             console.error("Lỗi chi tiết:", error);
-            alert("LỖI KẾT NỐI: Hùng đã bật Server ở cổng 5000 chưa? Hoặc kiểm tra lỗi CORS trong index.js nhé!");
+            alert("Không thể kết nối đến máy chủ!");
         }
     }, 2000);
 }
+
 // 4. Xử lý THANH TOÁN TẤT CẢ
 async function checkoutAll(e) {
-    // CHẶN LOAD TRANG NGAY LẬP TỨC
     if (e) e.preventDefault();
 
     const info = validateShippingInfo();
@@ -128,21 +121,26 @@ async function checkoutAll(e) {
     const method = document.querySelector('input[name="payMethod"]:checked').value;
     const total = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
 
+    // Dữ liệu gói hàng chuẩn (Dùng cartItems)
+    const orderData = {
+        ...info,
+        cartItems: cart,
+        total,
+        method
+    };
+
     if (method === 'cod') {
         if (confirm(`Xác nhận đặt đơn COD: ${total.toLocaleString()} VNĐ?`)) {
-            const res = await sendDataToBackend({ ...info, items: cart, total, method: 'cod' });
-            if (res?.success) finishOrder("Đơn hàng COD đã xong!");
+            const res = await sendDataToBackend(orderData);
+            if (res && res.success) {
+                finishOrder("Đơn hàng COD đã xong! Kiểm tra kho ngay sếp ơi! +))");
+            }
         }
     } else {
-        // PHẦN QUAN TRỌNG: Hiện QR và đứng yên tại chỗ để dò tiền
-        alert("Hùng quét mã QR nhé. Hệ thống đang đợi tiền về, ĐỪNG tắt trang! +))");
+        alert("Bạn quét mã QR nhé. Hệ thống đang đợi tiền về, ĐỪNG tắt trang! +))");
         document.getElementById('transferDetail').scrollIntoView({ behavior: 'smooth' });
-
-        // Cập nhật QR tổng trước khi dò
         updateSummary(cart.length, total, "Tong Don Hang");
-
-        // Gọi hàm dò tiền (Hàm này có Loading Overlay che màn hình nên khách không bấm lung tung được)
-        startAutoCheckPayment({ ...info, items: cart, total, method: 'transfer' });
+        startAutoCheckPayment(orderData);
     }
 }
 
@@ -155,10 +153,9 @@ async function paySingleItem(index) {
     const subTotal = item.price * item.quantity;
     const method = document.querySelector('input[name="payMethod"]:checked').value;
 
-    // Tạo gói dữ liệu đơn hàng cho riêng món này
     const orderData = {
         ...info,
-        items: [item],
+        cartItems: [item],
         total: subTotal,
         method,
         note: `Mua lẻ: ${item.name}`
@@ -168,40 +165,31 @@ async function paySingleItem(index) {
         if (confirm(`Xác nhận mua riêng món [${item.name}] - COD?`)) {
             const res = await sendDataToBackend(orderData);
             if (res && res.success) {
-                cart.splice(index, 1); // Xóa món đó khỏi giỏ
+                cart.splice(index, 1);
                 saveAndRefresh();
                 alert("Đã đặt hàng món lẻ thành công!");
             }
         }
     } else {
-        // 1. Cập nhật mã QR riêng cho món này (Dùng hàm đã sửa ở trên)
         updateSummary(1, subTotal, true);
-
-        // 2. Hiện phần QR và cuộn xuống
         const detail = document.getElementById('transferDetail');
         detail.style.display = 'block';
         detail.scrollIntoView({ behavior: 'smooth' });
-
-        alert(`Hùng vui lòng quét QR để mua riêng món: ${item.name}`);
-
-        // 3. Bật bộ dò tiền tự động (truyền tham số báo là thanh toán lẻ)
+        alert(`Bạn vui lòng quét QR để mua riêng món: ${item.name}`);
         startAutoCheckPayment(orderData, true, index);
     }
 }
 
-// Sửa lại hàm để có thể nhận giá trị tùy chọn
+// Cập nhật giao diện QR và Tổng tiền
 function updateSummary(qty, price, infoText = "Thanh Toan Don Hang") {
-    // 1. Cập nhật chữ số trên giao diện (nếu không phải mua lẻ)
     if (qty > 1 || infoText === "Thanh Toan Don Hang") {
         if (document.getElementById('totalQty')) document.getElementById('totalQty').innerText = qty;
         if (document.getElementById('totalPriceFinal')) document.getElementById('totalPriceFinal').innerText = price.toLocaleString() + " VNĐ";
         if (document.getElementById('subtotal')) document.getElementById('subtotal').innerText = price.toLocaleString() + " VNĐ";
     }
 
-    // 2. Cập nhật QR Code - Quan trọng nhất là phần addInfo
     const qrImg = document.querySelector('.qr-code img');
     if (qrImg) {
-        // Hùng dùng encodeURIComponent để tránh lỗi font khi truyền tiếng Việt vào link ảnh
         const description = encodeURIComponent(`GameStore ${infoText}`);
         qrImg.src = `https://img.vietqr.io/image/MB-0967444300-compact2.png?amount=${price}&addInfo=${description}`;
     }
@@ -240,7 +228,6 @@ function togglePaymentInfo() {
 
     if (method === 'transfer') {
         detail.style.display = 'block';
-        // Khi vừa mở tab chuyển khoản, hiện QR của TỔNG GIỎ HÀNG
         const total = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
         const qty = cart.reduce((s, i) => s + i.quantity, 0);
         updateSummary(qty, total, "Tong Gio Hang");
@@ -248,75 +235,43 @@ function togglePaymentInfo() {
         detail.style.display = 'none';
     }
 }
-// 1. Hàm hiện QR nhanh cho 1 món
+
 function showQuickQR(index) {
     const item = cart[index];
     const subTotal = item.price * item.quantity;
-
-    // Tự động tích chuyển khoản
     document.querySelector('input[value="transfer"]').checked = true;
     document.getElementById('transferDetail').style.display = 'block';
-
-    // Cập nhật QR lẻ
     updateSummary(item.quantity, subTotal, `Mua le ${item.name}`);
-
-    // QUAN TRỌNG: Reset nút QR tổng về trạng thái ban đầu
-    const btn = document.getElementById('btnGenTotalQR');
-    btn.style.background = "#6c757d"; // Quay về màu xám
-    btn.innerHTML = '<i class="fa-solid fa-qrcode"></i> HIỆN MÃ QR TỔNG TIỀN';
     document.getElementById('transferDetail').scrollIntoView({ behavior: 'smooth' });
 }
-// 2. Hàm xử lý nút "HIỆN MÃ QR TỔNG TIỀN"
+
 function generateTotalQR(e) {
     if (e) e.preventDefault();
-
     const method = document.querySelector('input[name="payMethod"]:checked').value;
     if (method !== 'transfer') {
-        alert("Hùng ơi! Bạn phải chọn phương thức 'Chuyển khoản' thì mới cần hiện mã QR chứ! +))");
+        alert("Phải chọn 'Chuyển khoản' mới cần mã QR nhé! +))");
         return;
     }
-
     const total = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
     const qty = cart.reduce((s, i) => s + i.quantity, 0);
-
-    // Hiện khung QR
-    const detail = document.getElementById('transferDetail');
-    detail.style.display = 'block';
-    detail.scrollIntoView({ behavior: 'smooth' });
-
-    // Gọi hàm cập nhật ảnh QR
+    document.getElementById('transferDetail').style.display = 'block';
+    document.getElementById('transferDetail').scrollIntoView({ behavior: 'smooth' });
     updateSummary(qty, total, "Tong Don Hang");
-
-
-    // Đổi màu nút để khách biết đã bấm thành công
-    const btn = document.getElementById('btnGenTotalQR');
-    btn.style.background = "#28a745"; // Đổi sang màu xanh lá
-    btn.innerHTML = '<i class="fa-solid fa-check"></i> ĐÃ HIỆN QR TỔNG';
 }
-// 2. Sửa lại hàm paySingleItem để chặn load trang
-async function paySingleItem(index) {
-    const info = validateShippingInfo();
-    if (!info) return;
 
-    const item = cart[index];
-    const subTotal = item.price * item.quantity;
-    const method = document.querySelector('input[name="payMethod"]:checked').value;
-
-    if (method === 'cod') {
-        if (confirm(`Xác nhận mua lẻ [${item.name}] - COD?`)) {
-            const res = await sendDataToBackend({ ...info, items: [item], total: subTotal, method: 'cod' });
-            if (res?.success) {
-                cart.splice(index, 1);
-                saveAndRefresh();
-                alert("Đặt hàng thành công!");
-            }
-        }
-    } else {
-        // CHẶN LOAD: Nếu chọn Chuyển khoản, PHẢI đợi ting ting mới chạy tiếp
-        alert("Hệ thống đang kiểm tra thanh toán. Hùng đừng tắt trang cho đến khi có thông báo thành công nhé!");
-
-        // Gọi bộ dò tiền tự động (hàm này đã có logic chặn bằng Loading Overlay)
-        startAutoCheckPayment({ ...info, items: [item], total: subTotal, method: 'transfer' }, true, index);
+// Gửi dữ liệu đồng bộ Backend
+async function sendDataToBackend(orderData) {
+    try {
+        const response = await fetch('http://localhost:5000/api/checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(orderData)
+        });
+        return await response.json();
+    } catch (error) {
+        console.error("Lỗi:", error);
+        alert("Hùng ơi, Server Backend chưa bật rồi! +))");
+        return { success: false };
     }
 }
 

@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const mysql = require('mysql2'); // 1. Thêm thư viện kết nối MySQL
+const mysql = require('mysql2');
 
 const app = express();
 const PORT = 5000;
@@ -8,135 +8,220 @@ const PORT = 5000;
 app.use(cors());
 app.use(express.json());
 
-// 2. CẤU HÌNH KẾT NỐI DATABASE (Hùng điền mật khẩu vào đây)
+// 1. CẤU HÌNH KẾT NỐI DATABASE
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '12345', // <-- ĐIỀN MẬT KHẨU WORKBENCH CỦA HÙNG VÀO ĐÂY
-    database: 'gamestore_db'       // Tên Schema Hùng vừa tạo ở Workbench
+    password: '12345', // Mật khẩu Workbench của Hùng
+    database: 'gamestore_db'
 });
 
-// Kiểm tra kết nối
 db.connect((err) => {
     if (err) {
-        console.error('Lỗi kết nối MySQL rồi Hùng ơi! Check lại pass nhé:', err.message);
+        console.error('Lỗi kết nối MySQL rồi Hùng ơi!:', err.message);
         return;
     }
-    console.log('>>> ĐÃ KẾT NỐI THÀNH CÔNG VỚI MYSQL WORKBENCH! +))');
+    console.log('>>> DATABASE ĐÃ SẴN SÀNG! HỆ THỐNG GAMESTORE ĐÃ BẬT! +))');
 });
 
-app.get('/', (req, res) => {
-    res.send("<h1>Server GameStore + MySQL đã sẵn sàng!</h1>");
+// Biến tạm lưu trạng thái thanh toán cho chức năng Ting Ting
+let paymentStatus = {};
+
+// ==========================================
+// API DÀNH CHO KHÁCH HÀNG (USER)
+// ==========================================
+
+// Lấy sản phẩm cho trang chủ
+app.get('/api/products', (req, res) => {
+    db.query("SELECT * FROM products", (err, results) => {
+        if (err) return res.status(500).json([]);
+        res.json(results);
+    });
 });
 
-// 3. API NHẬN ĐƠN HÀNG VÀ LƯU VÀO DATABASE
-app.post('/api/checkout', (req, res) => {
-    const data = req.body;
-    console.log(">>> NHẬN ĐƠN HÀNG MỚI:", data);
-
-    // Câu lệnh SQL để chèn dữ liệu vào bảng orders
-    const sql = `INSERT INTO orders (customerName, phone, address, totalAmount, paymentMethod) 
-                 VALUES (?, ?, ?, ?, ?)`;
-
-    const values = [
-        data.name,
-        data.phone,
-        data.address,
-        data.total,
-        data.method
-    ];
-
-    // Thực hiện lưu vào database
-    db.query(sql, values, (err, result) => {
+// Đăng ký thành viên
+app.post('/api/register', (req, res) => {
+    const { username, email, password } = req.body;
+    const sql = "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, 'user')";
+    db.query(sql, [username, email, password], (err) => {
         if (err) {
-            console.error("Lỗi khi lưu vào MySQL:", err);
-            return res.status(500).json({ success: false, message: "Lỗi lưu Database!" });
+            if (err.code === 'ER_DUP_ENTRY') return res.json({ success: false, message: "Email hoặc tên đăng nhập đã tồn tại!" });
+            return res.status(500).json({ success: false, message: "Lỗi hệ thống!" });
+        }
+        res.json({ success: true, message: "Đăng ký thành công! +))" });
+    });
+});
+
+// THANH TOÁN (Lưu đơn + Lưu chi tiết + TRỪ KHO NGAY LẬP TỨC)
+app.post('/api/checkout', (req, res) => {
+    const { name, phone, address, total, method, cartItems } = req.body;
+    console.log(">>> NHẬN ĐƠN HÀNG MỚI TỪ:", name);
+
+    const sqlOrder = `INSERT INTO orders (customerName, phone, address, totalAmount, paymentMethod) 
+                      VALUES (?, ?, ?, ?, ?)`;
+
+    db.query(sqlOrder, [name, phone, address, total, method], (err, result) => {
+        if (err) {
+            console.error("Lỗi lưu đơn hàng:", err);
+            return res.status(500).json({ success: false });
         }
 
-        console.log(">>> ĐÃ LƯU ĐƠN HÀNG VÀO DATABASE THÀNH CÔNG! ID:", result.insertId);
+        const orderId = result.insertId;
 
-        // Phản hồi lại cho Frontend
+        // Nếu có danh sách sản phẩm (cartItems), thực hiện lưu chi tiết và trừ kho
+        if (cartItems && cartItems.length > 0) {
+            cartItems.forEach(item => {
+                // 1. Lưu vào bảng chi tiết (order_items) để Admin xem được đơn mua gì
+                const sqlItems = "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)";
+                db.query(sqlItems, [orderId, item.id, item.quantity, item.price]);
+
+                // 2. Cập nhật số lượng tồn kho (TRỪ KHO)
+                const sqlUpdateStock = "UPDATE products SET stock = stock - ? WHERE id = ?";
+                db.query(sqlUpdateStock, [item.quantity, item.id], (err) => {
+                    if (err) console.error("Lỗi trừ kho game ID " + item.id, err);
+                });
+            });
+        }
+
         res.json({
             success: true,
-            message: "Đơn hàng của " + data.name + " đã được lưu vào Database!",
-            orderID: result.insertId
+            message: "Đặt hàng thành công và đã cập nhật kho!",
+            orderID: orderId
         });
     });
 });
-// 1. API ĐĂNG KÝ (Register)
-app.post('/api/register', (req, res) => {
-    const { username, email, password } = req.body;
 
-    const sql = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
-    db.query(sql, [username, email, password], (err, result) => {
-        if (err) {
-            if (err.code === 'ER_DUP_ENTRY') {
-                return res.json({ success: false, message: "Tên đăng nhập hoặc Email đã tồn tại!" });
-            }
-            return res.status(500).json({ success: false, message: "Lỗi hệ thống!" });
-        }
-        res.json({ success: true, message: "Đăng ký thành viên thành công! +))" });
-    });
-});
-
-// 2. API ĐĂNG NHẬP (Login)
-app.post('/api/login', (req, res) => {
-    const { email, password } = req.body;
-
-    const sql = "SELECT * FROM users WHERE email = ? AND password = ?";
-    db.query(sql, [email, password], (err, results) => {
-        if (err) return res.status(500).json({ success: false, message: "Lỗi hệ thống!" });
-
-        if (results.length > 0) {
-            // LẤY USERNAME TỪ KẾT QUẢ DATABASE TRẢ VỀ (results[0])
-            const loggedInUser = results[0];
-
-            res.json({
-                success: true,
-                message: "Chào mừng " + loggedInUser.username + " quay trở lại!",
-                user: {
-                    id: loggedInUser.id,
-                    username: loggedInUser.username,
-                    email: loggedInUser.email
-                }
-            });
-        } else {
-            res.json({ success: false, message: "Sai Email hoặc mật khẩu rồi Hùng ơi!" });
-        }
-    });
-});
-
-// API LẤY DANH SÁCH SẢN PHẨM
-app.get('/api/products', (req, res) => {
-    const sql = "SELECT * FROM products";
-
-    db.query(sql, (err, results) => {
-        if (err) {
-            console.error("Lỗi lấy sản phẩm:", err);
-            return res.status(500).json({ success: false, message: "Lỗi Database!" });
-        }
-        res.json(results); // Trả về mảng sản phẩm cho Frontend
-    });
-});
-let paymentStatus = {}; // Biến tạm lưu trạng thái thanh toán
-
+// Kiểm tra trạng thái thanh toán (Dành cho trang chuyển khoản)
 app.get('/api/check-payment', (req, res) => {
     const name = req.query.name;
     if (paymentStatus[name]) {
         res.json({ paid: true });
-        delete paymentStatus[name]; // Xóa sau khi dùng xong
+        delete paymentStatus[name];
     } else {
         res.json({ paid: false });
     }
 });
 
-// Hùng dùng Postman gọi vào đây để giả lập tiền về:
+// Giả lập nhận tiền (Ting Ting) từ Postman
 app.post('/api/fake-ting-ting', (req, res) => {
     const { name } = req.body;
     paymentStatus[name] = true;
+    console.log(`>>> ĐÃ NHẬN TIỀN TỪ: ${name}!`);
     res.send("Đã giả lập nhận tiền thành công!");
 });
 
+// ==========================================
+// API DÀNH CHO ADMIN
+// ==========================================
+
+// Đăng nhập (Có trả về Role để Frontend điều hướng)
+app.post('/api/login', (req, res) => {
+    const { email, password } = req.body;
+    const sql = "SELECT id, username, email, role FROM users WHERE email = ? AND password = ?";
+    db.query(sql, [email, password], (err, results) => {
+        if (err) return res.status(500).json({ success: false });
+
+        if (results.length > 0) {
+            res.json({
+                success: true,
+                message: `Chào sếp ${results[0].username}!`,
+                user: results[0]
+            });
+        } else {
+            res.json({ success: false, message: "Sai tài khoản hoặc mật khẩu rồi Hùng ơi!" });
+        }
+    });
+});
+
+// Danh sách đơn hàng
+app.get('/api/admin/orders', (req, res) => {
+    db.query("SELECT * FROM orders ORDER BY id DESC", (err, results) => {
+        if (err) return res.json([]);
+        res.json(results);
+    });
+});
+
+// Chi tiết đơn hàng (Join 3 bảng)
+app.get('/api/admin/order-detail/:id', (req, res) => {
+    const orderId = req.params.id;
+    const sql = `
+        SELECT o.customerName, p.name as productName, oi.quantity, p.stock as stockLeft, oi.price
+        FROM orders o
+        JOIN order_items oi ON o.id = oi.order_id
+        JOIN products p ON oi.product_id = p.id
+        WHERE o.id = ?`;
+    db.query(sql, [orderId], (err, results) => {
+        if (err) return res.json([]);
+        res.json(results);
+    });
+});
+
+// Xóa đơn hàng (Xóa chi tiết trước để tránh lỗi Foreign Key)
+app.delete('/api/admin/orders/:id', (req, res) => {
+    const orderId = req.params.id;
+    db.query("DELETE FROM order_items WHERE order_id = ?", [orderId], () => {
+        db.query("DELETE FROM orders WHERE id = ?", [orderId], (err) => {
+            if (err) return res.json({ success: false });
+            res.json({ success: true });
+        });
+    });
+});
+
+// Danh sách sản phẩm (Admin)
+app.get('/api/admin/products', (req, res) => {
+    db.query("SELECT * FROM products", (err, results) => {
+        if (err) return res.json([]);
+        res.json(results);
+    });
+});
+
+// Danh sách người dùng
+app.get('/api/admin/users', (req, res) => {
+    db.query("SELECT id, username, email, role FROM users", (err, results) => {
+        if (err) return res.json([]);
+        res.json(results);
+    });
+});
+
+// Biểu đồ doanh thu
+app.get('/api/admin/revenue-chart', (req, res) => {
+    const sql = "SELECT DATE(orderDate) as date, SUM(totalAmount) as dailyTotal FROM orders GROUP BY DATE(orderDate) ORDER BY date ASC LIMIT 7";
+    db.query(sql, (err, results) => {
+        if (err) return res.json([]);
+        res.json(results);
+    });
+});
+
+// --- API ADMIN: THÊM SẢN PHẨM MỚI ---
+app.post('/api/admin/products', (req, res) => {
+    const { name, price, img, description, stock } = req.body;
+
+    // Câu lệnh SQL thêm mới
+    const sql = "INSERT INTO products (name, price, img, description, stock) VALUES (?, ?, ?, ?, ?)";
+
+    db.query(sql, [name, price, img, description, stock], (err, result) => {
+        if (err) {
+            console.error("Lỗi thêm SP:", err);
+            return res.status(500).json({ success: false, message: "Lỗi Database" });
+        }
+        res.json({ success: true, message: "Thêm sản phẩm thành công!", id: result.insertId });
+    });
+});
+// --- API ADMIN: CẬP NHẬT GIÁ VÀ KHO SẢN PHẨM ---
+app.put('/api/admin/products/:id', (req, res) => {
+    const productId = req.params.id;
+    const { price, stock } = req.body;
+
+    const sql = "UPDATE products SET price = ?, stock = ? WHERE id = ?";
+
+    db.query(sql, [price, stock, productId], (err, result) => {
+        if (err) {
+            console.error("Lỗi cập nhật SP:", err);
+            return res.status(500).json({ success: false });
+        }
+        res.json({ success: true, message: "Đã cập nhật sản phẩm!" });
+    });
+});
 app.listen(PORT, () => {
     console.log(`\n=========================================`);
     console.log(`SERVER ĐANG CHẠY TẠI: http://localhost:${PORT}`);

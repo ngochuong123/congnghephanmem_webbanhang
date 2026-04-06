@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Quản trị GameStore</title>
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="admin-body">
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <div class="admin-logo">
+                <h2>Game<span>Admin</span></h2>
+            </div>
+            <nav class="admin-nav">
+                <a href="#" class="active" onclick="showSection('orders')">
+                    <i class="fa-solid fa-cart-shopping"></i> Đơn hàng
+                </a>
+                <a href="#" onclick="showSection('products')">
+                    <i class="fa-solid fa-gamepad"></i> Sản phẩm
+                </a>
+                <a href="#" onclick="showSection('users')">
+                    <i class="fa-solid fa-users"></i> Người dùng
+                </a>
+                <a href="#" onclick="logoutAdmin()">
+                    <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+                </a>
+            </nav>
+        </aside>
+
+        <main class="admin-content">
+            <header class="admin-header">
+                <h3>Bảng điều khiển quản trị</h3>
+                <div class="admin-info">
+                    <span id="adminName">Sếp Hưởng</span>
+                    <img src="https://ui-avatars.com/api/?name=Admin" alt="Avatar">
+                </div>
+            </header>
+
+            <section id="chart-section" class="content-section" style="margin-bottom: 30px;">
+                <div class="section-header">
+                    <h4><i class="fa-solid fa-chart-line"></i> Doanh thu 7 ngày gần nhất</h4>
+                </div>
+                <div style="height: 300px; width: 100%;">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </section>
+
+            <section id="orders-section" class="content-section">
+                <h2>Danh sách đơn hàng</h2>
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Mã Đơn</th>
+                                <th>Khách Hàng</th>
+                                <th>SĐT</th>
+                                <th>Tổng Tiền</th>
+                                <th>Thanh Toán</th>
+                                <th>Ngày Đặt</th>
+                                <th>Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orderList">
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="products-section" class="content-section" style="display:none;">
+                <div class="add-product-form">
+                    <h3><i class="fa-solid fa-plus-circle"></i> THÊM GAME MỚI VÀO CỬA HÀNG</h3>
+                    <div class="form-grid">
+                        <input type="text" id="p_name" placeholder="Tên sản phẩm...">
+                        <input type="number" id="p_price" placeholder="Giá tiền (VNĐ)...">
+                        <input type="text" id="p_img" placeholder="Đường dẫn ảnh (img/game.jpg)...">
+                        <input type="number" id="p_stock" placeholder="Số lượng nhập kho...">
+                        <textarea id="p_desc" placeholder="Mô tả chi tiết về con game này..."></textarea>
+                        <button class="btn-add-game" onclick="addNewProduct()">
+                            Xác nhận thêm sản phẩm
+                        </button>
+                    </div>
+                </div>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên Game</th>
+                            <th>Giá</th>
+                            <th>Kho</th>
+                            <th>Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminProductList"></tbody>
+                </table>
+            </section>
+
+            <section id="users-section" class="content-section" style="display: none;">
+                <h4><i class="fa-solid fa-user-group"></i> Danh sách thành viên</h4>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên người dùng</th>
+                            <th>Email</th>
+                            <th>Quyền hạn</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminUserList"></tbody>
+                </table>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+
+</html>
