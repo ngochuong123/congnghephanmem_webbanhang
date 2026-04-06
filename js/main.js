@@ -43,15 +43,17 @@ function displayProducts(data) {
         const isOutOfStock = item.status === "Hết hàng";
         productGrid.innerHTML += `
             <div class="product-card">
-                <div class="product-img" onclick="showProductDetail(${item.id})" style="cursor: pointer;">
+                <div class="product-img" onclick="showProductDetail(${item.id})">
                     <img src="${item.img}" alt="${item.name}">
-                    ${isOutOfStock ? '<span class="badge-out">Hết hàng</span>' : ''}
                 </div>
                 <div class="product-info">
-                    <h4 onclick="showProductDetail(${item.id})" style="cursor: pointer;">${item.name}</h4>
+                    <h4>${item.name}</h4>
                     <p class="price">${item.price.toLocaleString()} VNĐ</p>
-                    <button class="btn-add" ${isOutOfStock ? 'disabled' : ''}>
-                        ${isOutOfStock ? 'Tạm hết hàng' : 'Thêm vào giỏ'}
+                    
+                    <button class="btn-add" 
+                            ${isOutOfStock ? 'disabled' : ''} 
+                            onclick="addToCart(${item.id})">
+                        ${isOutOfStock ? 'Hết hàng' : 'Thêm vào giỏ'}
                     </button>
                 </div>
             </div>
@@ -83,6 +85,12 @@ function showProductDetail(id) {
     const modal = document.getElementById('productModal');
     modal.style.display = "block";
     document.body.style.overflow = "hidden"; // Chặn cuộn trang chủ
+
+    // Tìm nút btn-add-large trong modal và gắn:
+    const btnAddLarge = document.querySelector('.btn-add-large');
+    btnAddLarge.onclick = () => {
+        addToCart(product.id);
+    };
 }
 
 // Đóng modal khi bấm nút X
@@ -167,6 +175,41 @@ searchInput.addEventListener('keypress', function (e) {
     }
     searchInput.addEventListener('input', handleSearch);
 });
+function addToCart(productId) {
+    let cart = JSON.parse(localStorage.getItem('gameCart')) || [];
+    const product = products.find(p => p.id === productId);
+
+    if (!product) return;
+
+    const existingItem = cart.find(item => item.id === productId);
+    if (existingItem) {
+        existingItem.quantity += 1;
+    } else {
+        cart.push({ ...product, quantity: 1 });
+    }
+
+    // LƯU DỮ LIỆU
+    localStorage.setItem('gameCart', JSON.stringify(cart));
+
+    // QUAN TRỌNG: Gọi hàm cập nhật con số ngay lập tức sau khi lưu
+    updateCartCount();
+
+    alert(`Đã thêm ${product.name} vào giỏ!`);
+}
+
+// Hàm này phải được gọi cả khi vừa load trang (để hiện số cũ) 
+// và khi vừa nhấn nút "Thêm" (để hiện số mới)
+function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem('gameCart')) || [];
+    const countElement = document.getElementById('cartCount');
+    if (countElement) {
+        const total = cart.reduce((sum, item) => sum + item.quantity, 0);
+        countElement.innerText = total;
+    }
+}
+
+// Gọi luôn khi load trang chủ
+updateCartCount();
 // Gọi hàm hiển thị lúc ban đầu
 displayProducts(products);
 

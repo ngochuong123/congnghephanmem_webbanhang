@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Giỏ hàng - GameStore</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body class="cart-page-body">
+    <header>
+        <nav class="navbar">
+            <div class="logo" onclick="window.location.href='index.html'" style="cursor: pointer;">
+                <h2>Game<span>Store</span></h2>
+            </div>
+            <a href="index.html" class="back-home"><i class="fa-solid fa-arrow-left"></i> Tiếp tục mua sắm</a>
+        </nav>
+    </header>
+
+    <main class="cart-wrapper">
+        <div class="cart-main">
+            <h2 class="cart-header">Giỏ hàng của bạn <span id="itemCount">0</span> sản phẩm</h2>
+            <div id="cartList" class="cart-inner-list">
+            </div>
+        </div>
+
+        <aside class="cart-sidebar">
+            <div class="checkout-card">
+                <h3>Thông tin đơn hàng</h3>
+                <div class="summary-row">
+                    <span>Tạm tính:</span>
+                    <span id="subtotal">0 VNĐ</span>
+                </div>
+                <div class="summary-row">
+                    <span>Phí vận chuyển:</span>
+                    <span>Miễn phí</span>
+                </div>
+                <hr>
+                <div class="summary-row total">
+                    <span>Tổng cộng:</span>
+                    <span id="totalPriceFinal">0 VNĐ</span>
+                </div>
+                <div class="cart-summary">
+                    <div class="summary-line">
+                        <span>Tổng sản phẩm:</span>
+                        <span id="totalQty">0</span>
+                    </div>
+                    <div class="summary-line total">
+                        <span>Tổng cộng:</span>
+                        <span id="totalPriceFinal">0 VNĐ</span>
+                    </div>
+                    <button class="btn-calc" onclick="calculateTotal()">TÍNH TỔNG TIỀN</button>
+                    <p style="font-size: 0.8rem; color: #666; margin-top: 10px;">* Hoặc thanh toán riêng từng món bên
+                        dưới</p>
+                </div>
+                <button class="btn-checkout-v2" onclick="checkout()">
+                    TIẾN HÀNH THANH TOÁN
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </aside>
+    </main>
+
+    <script src="js/cart.js"></script>
+</body>
+
+</html>

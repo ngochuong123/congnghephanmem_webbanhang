@@ -483,3 +483,309 @@ LÀM ĐẸP RIÊNG CHO TRANG ĐĂNG NHẬP / ĐĂNG KÝ=========================
     text-shadow: 0 0 10px rgba(255, 71, 87, 0.3);
     /* Thêm chút ánh sáng đỏ xung quanh */
 }
+
+/* Layout tổng thể */
+.cart-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    /* Chia 2 cột: Danh sách và Sidebar */
+    gap: 30px;
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+/* Từng item trong giỏ hàng */
+.cart-item {
+    display: grid;
+    grid-template-columns: 120px 1fr 150px;
+    /* Ảnh | Thông tin | Giá */
+    align-items: center;
+    background: #fff;
+    padding: 20px;
+    border-radius: 16px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    transition: transform 0.3s ease;
+}
+
+.cart-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.cart-item img {
+    width: 100px;
+    height: 100px;
+    border-radius: 12px;
+    object-fit: cover;
+}
+
+.item-details h3 {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+    color: #2d3436;
+}
+
+/* Sidebar Thanh toán */
+.cart-sidebar {
+    position: sticky;
+    top: 100px;
+    /* Khi cuộn trang thì sidebar dính lại ở top */
+    height: fit-content;
+}
+
+.checkout-card {
+    background: #fff;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin: 15px 0;
+    color: #636e72;
+}
+
+.summary-row.total {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #ff4757;
+    margin-top: 20px;
+}
+
+/* Nút thanh toán kiểu hiện đại */
+.btn-checkout-v2 {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, #ff4757 0%, #e84118 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    transition: 0.3s;
+}
+
+.btn-checkout-v2:hover {
+    box-shadow: 0 8px 20px rgba(232, 65, 24, 0.4);
+    transform: translateY(-2px);
+}
+
+.item-actions {
+    text-align: right;
+    border-left: 1px solid #eee;
+    padding-left: 20px;
+}
+
+.btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+/* 1. Trạng thái bình thường */
+.btn-pay-item {
+    background: #2ecc71 !important;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    /* Hiệu ứng nảy chuẩn */
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 0px #27ae60;
+    position: relative;
+    top: 0;
+    text-transform: uppercase;
+    font-size: 12px;
+    display: inline-block;
+}
+
+/* Hiệu ứng khi DI CHUỘT VÀO (Hover) - CÁI NÀY QUYẾT ĐỊNH HIỆU ỨNG */
+.btn-pay-item:hover {
+    background: #27ae60 !important;
+    transform: scale(1.08);
+    box-shadow: 0 6px 15px rgba(46, 204, 113, 0.4);
+    top: -2px;
+}
+
+/* Hiệu ứng khi NHẤN CHUỘT (Click) - Tạo cảm giác lún nút */
+.btn-pay-item:active {
+    transform: scale(0.95);
+    box-shadow: 0 1px 0px #219150;
+    top: 3px;
+    transition: 0.1s;
+}
+
+.btn-remove-item {
+    background: #f1f2f6;
+    color: #ff4757;
+    border: 1px solid #ff4757;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn-remove-item:hover {
+    background: #ff4757;
+    color: white;
+}
+
+/* Trạng thái bình thường */
+.btn-calc {
+    width: 100%;
+    padding: 15px;
+    background: #34495e;
+    /* Màu xanh đen sang trọng */
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 15px;
+    position: relative;
+    overflow: hidden;
+    /* Để làm hiệu ứng lấp lánh chạy qua */
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Hiệu ứng lấp lánh (Shimmer) chạy ngang nút */
+.btn-calc::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(120deg,
+            transparent,
+            rgba(255, 255, 255, 0.3),
+            transparent);
+    transition: all 0.6s;
+}
+
+/* Hiệu ứng khi Di chuột vào (Hover) */
+.btn-calc:hover {
+    background: #2c3e50;
+    transform: translateY(-3px);
+    /* Nhích lên trên */
+    box-shadow: 0 8px 25px rgba(52, 73, 94, 0.4);
+    letter-spacing: 1px;
+    /* Chữ giãn ra nhẹ nhìn rất chuyên nghiệp */
+}
+
+/*Hiệu ứng khi Click (Active) */
+.btn-calc:active {
+    transform: scale(0.97);
+    /* Thu nhỏ nhẹ khi bấm */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 10px;
+    background: #f1f2f6;
+    width: fit-content;
+    padding: 5px 10px;
+    border-radius: 20px;
+}
+
+.btn-qty {
+    background: white;
+    border: 1px solid #ddd;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: 0.2s;
+}
+
+.btn-qty:hover {
+    background: #ff4757;
+    color: white;
+    border-color: #ff4757;
+}
+
+.qty-number {
+    font-weight: 800;
+    font-size: 1rem;
+    min-width: 20px;
+    text-align: center;
+    user-select: none;
+    /* Khóa bôi đen số lượng */
+}
+
+/* 1. Khóa con trỏ chữ I trên toàn bộ thẻ sản phẩm ở trang chủ */
+.product-card,
+.product-card h4,
+.product-card p,
+.product-card span {
+    cursor: default !important;
+    /* Luôn là mũi tên */
+    user-select: none;
+    /* Chặn bôi đen chữ */
+}
+
+/* 2. Khóa con trỏ chữ I trong Modal (Chi tiết sản phẩm) */
+.modal-content,
+#modalName,
+#modalPrice,
+#modalDesc,
+.modal-description h4 {
+    cursor: default !important;
+    user-select: none;
+}
+
+/* 3. Khóa con trỏ chữ I trong trang Giỏ hàng */
+.cart-item,
+.item-details h3,
+.item-details p,
+.item-subtotal p,
+.summary-row span {
+    cursor: default !important;
+    user-select: none;
+}
+
+/* 4. ĐẢM BẢO các ô nhập liệu (Input) vẫn hiện chữ I để gõ được */
+input,
+textarea,
+[contenteditable="true"] {
+    cursor: text !important;
+    /* Ép hiện lại chữ I cho ô nhập liệu */
+    user-select: text !important;
+    /* Cho phép bôi đen trong ô tìm kiếm/đăng nhập */
+}
+
+/* 5. Giữ hình bàn tay cho các nút bấm và icon */
+button,
+.btn-add,
+.btn-pay-item,
+.btn-remove-item,
+.close-modal,
+.cart-icon,
+.logo {
+    cursor: pointer !important;
+}
