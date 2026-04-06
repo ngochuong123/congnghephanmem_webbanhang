@@ -223,8 +223,8 @@ app.put('/api/admin/products/:id', (req, res) => {
         res.json({ success: true, message: "Đã cập nhật sản phẩm!" });
     });
 });
-app.listen(PORT, () => {
-    console.log(`\n=========================================`);
-    console.log(`SERVER ĐANG CHẠY TẠI: http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`=========================================`);
+    console.log(`SERVER ĐANG CHẠY TẠI PORT: ${PORT}`);
     console.log(`=========================================`);
 });
