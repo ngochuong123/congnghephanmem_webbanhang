@@ -14,15 +14,18 @@ const db = mysql.createConnection({
     user: process.env.MYSQLUSER || 'root',
     password: process.env.MYSQLPASSWORD || '12345',
     database: process.env.MYSQLDATABASE || 'gamestore_db',
-    port: process.env.MYSQLPORT || 3306
+    port: process.env.MYSQLPORT || 3306,
+    connectTimeout: 10000 // Thêm dòng này (10 giây chờ)
 });
-
+// --- SỬA ĐOẠN NÀY ---
 db.connect((err) => {
     if (err) {
-        console.error('Lỗi kết nối MySQL rồi Hùng ơi!:', err.message);
-        return;
+        console.error('❌ LỖI KẾT NỐI DATABASE:', err.message);
+        console.log('>>> SERVER VẪN CHẠY NHƯNG CHƯA CÓ DB. KIỂM TRA LẠI BIẾN MÔI TRƯỜNG!');
+        // KHÔNG dùng return; ở đây để tránh sập Server
+    } else {
+        console.log('✅ DATABASE ĐÃ SẴN SÀNG! HỆ THỐNG GAMESTORE ĐÃ BẬT! +))');
     }
-    console.log('>>> DATABASE ĐÃ SẴN SÀNG! HỆ THỐNG GAMESTORE ĐÃ BẬT! +))');
 });
 
 // Biến tạm lưu trạng thái thanh toán cho chức năng Ting Ting
