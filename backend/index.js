@@ -50,12 +50,28 @@ app.get('/api/products', (req, res) => {
 // Đăng ký thành viên
 app.post('/api/register', (req, res) => {
     const { username, email, password } = req.body;
-    const sql = "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, 'user')";
-    db.query(sql, [username, email, password], (err) => {
+
+    // 1. Kiểm tra xem có dữ liệu gửi lên không (tránh lỗi null)
+    if (!username || !email || !password) {
+        return res.status(400).json({ success: false, message: "Thiếu thông tin đăng ký!" });
+    }
+
+    // 2. Câu lệnh SQL với 4 dấu hỏi cho 4 giá trị
+    const sql = "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)";
+
+    // 3. Mảng truyền vào phải có đủ 4 phần tử tương ứng
+    db.query(sql, [username, email, password, 'user'], (err, result) => {
         if (err) {
-            if (err.code === 'ER_DUP_ENTRY') return res.json({ success: false, message: "Email hoặc tên đăng nhập đã tồn tại!" });
-            return res.status(500).json({ success: false, message: "Lỗi hệ thống!" });
+            // In ra lỗi chi tiết ở Logs Render để Hùng dễ soi
+            console.error("❌ LỖI DATABASE:", err.sqlMessage || err);
+
+            if (err.code === 'ER_DUP_ENTRY') {
+                return res.json({ success: false, message: "Email hoặc tên đăng nhập đã tồn tại!" });
+            }
+            return res.status(500).json({ success: false, message: "Lỗi hệ thống: " + (err.sqlMessage || "Check Logs") });
         }
+
+        console.log("✅ Đăng ký thành công user:", username);
         res.json({ success: true, message: "Đăng ký thành công! +))" });
     });
 });
