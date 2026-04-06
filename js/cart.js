@@ -1,21 +1,20 @@
-// 1. Lấy dữ liệu từ localStorage ngay khi vào trang
+// 1. Khai báo mảng cart ở phạm vi toàn cục để mọi hàm đều thấy
 let cart = JSON.parse(localStorage.getItem('gameCart')) || [];
 
 function displayCart() {
     const cartList = document.getElementById('cartList');
-    const totalQty = document.getElementById('totalQty');
-    const totalPriceFinal = document.getElementById('totalPriceFinal');
-    const itemCount = document.getElementById('itemCount'); // Cái chữ "0 sản phẩm" ở trên đầu
+    const itemCount = document.getElementById('itemCount');
 
     if (!cartList) return;
 
     if (cart.length === 0) {
-        cartList.innerHTML = `<p style="text-align:center; padding: 50px;">Giỏ hàng trống.</p>`;
+        cartList.innerHTML = `<p style="text-align:center; padding: 50px;">Giỏ hàng của bạn đang trống.</p>`;
         if (itemCount) itemCount.innerText = "0";
         updateSummary(0, 0);
         return;
     }
 
+    // Đảo ngược mảng để hiện món mới nhất lên đầu (Stack)
     const displayData = [...cart].reverse();
     let html = '';
     let totalMoney = 0;
@@ -25,7 +24,7 @@ function displayCart() {
         const originalIndex = cart.length - 1 - index;
         const subTotal = item.price * item.quantity;
 
-        // Cộng dồn để cập nhật con số tổng ngay khi vẽ trang
+        // Tự động cộng dồn tiền và số lượng
         totalMoney += subTotal;
         totalCount += item.quantity;
 
@@ -54,75 +53,69 @@ function displayCart() {
 
     cartList.innerHTML = html;
 
-    // CẬP NHẬT CON SỐ LÊN GIAO DIỆN NGAY LẬP TỨC
+    // Luôn cập nhật con số ở tiêu đề và bảng tổng kết tự động
     if (itemCount) itemCount.innerText = totalCount;
     updateSummary(totalCount, totalMoney);
 }
 
-// Hàm thay đổi số lượng
+// Hàm thay đổi số lượng (Tự động lưu và vẽ lại trang)
 function changeQty(index, delta) {
     cart[index].quantity += delta;
-
-    // Nếu giảm xuống 0 thì hỏi có muốn xóa không
     if (cart[index].quantity < 1) {
-        if (confirm("Bạn có muốn xóa sản phẩm này khỏi giỏ hàng?")) {
+        if (confirm("Xóa sản phẩm này khỏi giỏ hàng?")) {
             cart.splice(index, 1);
         } else {
-            cart[index].quantity = 1; // Giữ tối thiểu là 1
+            cart[index].quantity = 1;
         }
     }
-
-    localStorage.setItem('gameCart', JSON.stringify(cart));
-    displayCart(); // Vẽ lại giao diện để cập nhật số và tiền
+    saveAndRefresh();
 }
 
-function updateSummary(qty, price) {
-    if (document.getElementById('totalQty')) document.getElementById('totalQty').innerText = qty;
-    if (document.getElementById('subtotal')) document.getElementById('subtotal').innerText = price.toLocaleString() + " VNĐ";
-    if (document.getElementById('totalPriceFinal')) document.getElementById('totalPriceFinal').innerText = price.toLocaleString() + " VNĐ";
-}
-
-// 3. Hàm Xóa sản phẩm
+// Hàm xóa sản phẩm
 function removeItem(index) {
-    if (confirm("Bạn muốn xóa sản phẩm này khỏi giỏ hàng?")) {
-        cart.splice(index, 1); // Xóa trong mảng
-        localStorage.setItem('gameCart', JSON.stringify(cart)); // Cập nhật kho
-        displayCart(); // Vẽ lại giao diện
+    if (confirm("Bạn chắc chắn muốn xóa?")) {
+        cart.splice(index, 1);
+        saveAndRefresh();
     }
 }
 
-// 4. Hàm Thanh toán riêng từng món
-function paySingleItem(index) {
-    const item = cart[index];
-    const total = item.price * item.quantity;
+// Hàm cập nhật các con số ở bảng bên phải (Summary)
+function updateSummary(qty, price) {
+    const totalQty = document.getElementById('totalQty');
+    const subtotal = document.getElementById('subtotal');
+    const totalPriceFinal = document.getElementById('totalPriceFinal');
 
-    alert(`[THANH TOÁN TỪNG MÓN]\nSản phẩm: ${item.name}\nSố tiền: ${total.toLocaleString()} VNĐ\n\nCảm ơn bạn đã mua hàng!`);
+    if (totalQty) totalQty.innerText = qty;
+    if (subtotal) subtotal.innerText = price.toLocaleString() + " VNĐ";
+    if (totalPriceFinal) totalPriceFinal.innerText = price.toLocaleString() + " VNĐ";
+}
 
-    // Sau khi thanh toán riêng thì xóa món đó khỏi giỏ
-    cart.splice(index, 1);
+// Hàm lưu vào kho và vẽ lại giao diện
+function saveAndRefresh() {
     localStorage.setItem('gameCart', JSON.stringify(cart));
     displayCart();
 }
 
-// 5. Hàm Tính tổng tiền (Khi người dùng nhấn nút tính tổng)
-function calculateTotal() {
-    let totalMoney = 0;
-    let totalCount = 0;
+// --- ĐÂY LÀ HÀM CHO NÚT TO Ở DƯỚI ---
+function checkoutAll() {
+    if (cart.length === 0) {
+        alert("Giỏ hàng trống!");
+        return;
+    }
 
-    cart.forEach(item => {
-        totalMoney += item.price * item.quantity;
-        totalCount += item.quantity;
-    });
-
-    // Cập nhật số liệu vào phần Summary
-    if (document.getElementById('totalQty'))
-        document.getElementById('totalQty').innerText = totalCount;
-
-    if (document.getElementById('totalPriceFinal'))
-        document.getElementById('totalPriceFinal').innerText = totalMoney.toLocaleString() + " VNĐ";
-
-    alert("Đã cập nhật tổng tiền cho toàn bộ giỏ hàng!");
+    let total = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+    if (confirm(`Xác nhận thanh toán đơn hàng: ${total.toLocaleString()} VNĐ?`)) {
+        alert("Thanh toán thành công! Cảm ơn Hùng đã ủng hộ GameStore.");
+        localStorage.removeItem('gameCart');
+        window.location.href = 'index.html';
+    }
 }
 
-// Chạy hiển thị khi trang load xong
+function paySingleItem(index) {
+    alert(`Đã thanh toán món: ${cart[index].name}`);
+    cart.splice(index, 1);
+    saveAndRefresh();
+}
+
+// Khởi động trang
 document.addEventListener('DOMContentLoaded', displayCart);
