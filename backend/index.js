@@ -39,18 +39,7 @@ db.getConnection((err, connection) => {
     console.log("✅ ĐÃ KẾT NỐI DATABASE AIVEN QUA POOL!");
     connection.release(); // Giải phóng kết nối sau khi kiểm tra xong
 });
-// --- SỬA ĐOẠN NÀY ---
-db.connect((err) => {
-    if (err) {
-        console.error('❌ LỖI KẾT NỐI DATABASE:', err.message);
-        console.log('>>> SERVER VẪN CHẠY NHƯNG CHƯA CÓ DB. KIỂM TRA LẠI BIẾN MÔI TRƯỜNG!');
-        // KHÔNG dùng return; ở đây để tránh sập Server
-    } else {
-        console.log('✅ DATABASE ĐÃ SẴN SÀNG! HỆ THỐNG GAMESTORE ĐÃ BẬT! +))');
-    }
-});
 
-// Biến tạm lưu trạng thái thanh toán cho chức năng Ting Ting
 let paymentStatus = {};
 
 // ==========================================
