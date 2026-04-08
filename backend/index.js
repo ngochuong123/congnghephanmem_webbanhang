@@ -13,13 +13,31 @@ app.use(cors({
 app.use(express.json());
 
 // 1. CẤU HÌNH KẾT NỐI DATABASE
-const db = mysql.createConnection({
+// 1. Đổi createConnection thành createPool
+const db = mysql.createPool({
     host: process.env.MYSQLHOST || 'localhost',
     user: process.env.MYSQLUSER || 'root',
     password: process.env.MYSQLPASSWORD || '12345',
     database: process.env.MYSQLDATABASE || 'gamestore_db',
-    port: process.env.MYSQLPORT || 3306,
-    connectTimeout: 10000 // Thêm dòng này (10 giây chờ)
+    port: process.env.MYSQLPORT || 20856,
+    ssl: {
+        rejectUnauthorized: false // Quan trọng để Aiven không ngắt kết nối
+    },
+    waitForConnections: true,
+    connectionLimit: 10, // Cho phép tối đa 10 kết nối cùng lúc
+    queueLimit: 0,
+    keepAliveInitialDelay: 10000, // Tự động "nhắc" Database đừng ngắt kết nối
+    enableKeepAlive: true
+});
+
+// 2. Kiểm tra kết nối (Pool dùng .getConnection)
+db.getConnection((err, connection) => {
+    if (err) {
+        console.error("❌ LỖI KẾT NỐI DATABASE:", err.message);
+        return;
+    }
+    console.log("✅ ĐÃ KẾT NỐI DATABASE AIVEN QUA POOL!");
+    connection.release(); // Giải phóng kết nối sau khi kiểm tra xong
 });
 // --- SỬA ĐOẠN NÀY ---
 db.connect((err) => {
